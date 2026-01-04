@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OMGs Shop - Future Research Interface</title>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+
+    <!-- Styles -->
+    <link rel="stylesheet" href="style.css">
+
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+</head>
+
+<body>
+    <!-- Aesthetics -->
+    <div class="app-background"></div>
+    <div class="scanlines"></div>
+
+    <!-- Main Container -->
+    <div class="main-container">
+
+        <!-- Holiday Banner -->
+        <div id="holiday-banner" class="holiday-banner hidden"></div>
+
+        <!-- App Header (Visible in Dashboard) -->
+        <header id="app-header" class="hidden">
+            <div class="logo">OMG LABS</div>
+
+            <div class="user-info">
+                <span id="display-username">User</span>
+
+                <div class="coin-balance">
+                    <span>🪙</span> <span id="display-coins">0</span>
+                </div>
+
+                <div class="coin-balance" style="border-color: rgba(0, 243, 255, 0.2); color: var(--primary);">
+                    <span>💎</span> <span id="display-gems">0</span>
+                    <button id="btn-convert-gems"
+                        style="background:transparent; border:none; color:var(--primary); font-size:0.8rem; cursor:pointer;"
+                        title="Convert 8 Gems to 1 OMG">+</button>
+                </div>
+
+                <div class="energy-container">
+                    <div id="energy-bar-fill" class="energy-bar-fill" style="width: 100%;"></div>
+                </div>
+            </div>
+        </header>
+
+        <!-- VIEW: LANDING -->
+        <div id="view-landing" class="view active">
+            <div style="margin: auto; text-align: center; max-width: 400px;">
+                <h1 class="logo-large">OMG LABS</h1>
+                <p class="subtitle" data-i18n="subtitle">Future Trading & Research Interface</p>
+
+                <div class="button-group">
+                    <button id="btn-landing-register" class="btn-primary" data-i18n="initProtocol">Initialize
+                        Protocol</button>
+                    <button id="btn-landing-login" class="btn-secondary" data-i18n="identityVerif">Identity
+                        Verification</button>
+                    <div style="margin-top: 20px; font-size: 0.8rem; color: #666;">v2.0.1 Stable</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- VIEW: REGISTER -->
+        <div id="view-register" class="view hidden">
+            <div style="margin: auto; width: 100%; max-width: 350px;">
+                <h2 data-i18n="accessRequest">Access Request</h2>
+                <div style="margin-bottom: 2rem; height: 2px; background: var(--primary); width: 50px;"></div>
+
+                <form id="form-register">
+                    <div class="input-group">
+                        <label data-i18n="username">Username</label>
+                        <input type="text" id="reg-username" placeholder="Enter identifier..." required>
+                    </div>
+
+                    <div class="input-group">
+                        <label data-i18n="password">Password</label>
+                        <input type="password" id="reg-password" placeholder="••••••••" required>
+                    </div>
+
+                    <div class="button-group">
+                        <button type="submit" class="btn-primary" data-i18n="confirmReg">Confirm
+                            Registration</button>
+                        <button type="button" id="btn-register-back" class="btn-text" data-i18n="cancel">Cancel</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- VIEW: LOGIN -->
+        <div id="view-login" class="view hidden">
+            <div style="margin: auto; width: 100%; max-width: 350px;">
+                <h2 data-i18n="identityVerif">Identity Verification</h2>
+                <div style="margin-bottom: 2rem; height: 2px; background: var(--secondary); width: 50px;"></div>
+
+                <form id="form-login">
+                    <div class="input-group">
+                        <label data-i18n="username">Username</label>
+                        <input type="text" id="login-username" placeholder="Enter identifier..." required>
+                    </div>
+
+                    <div class="input-group">
+                        <label data-i18n="password">Password</label>
+                        <input type="password" id="login-password" placeholder="••••••••" required>
+                    </div>
+
+                    <div class="button-group">
+                        <button type="submit" class="btn-primary" data-i18n="authenticate">Authenticate</button>
+                        <button type="button" id="btn-login-back" class="btn-text" data-i18n="back">Back</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- VIEW: DASHBOARD -->
+        <div id="view-dashboard" class="view hidden" style="padding: 0;">
+
+            <!-- Dashboard Content -->
+            <div style="display: flex; height: 100%;">
+
+                <!-- Sidebar / Navigation -->
+                <div
+                    style="width: 200px; padding: 1rem; border-right: 1px solid var(--glass-border); display: flex; flex-direction: column;">
+                    <div
+                        style="margin-bottom: 1rem; font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px;">
+                        Navigation</div>
+
+                    <button class="tab-btn active" onclick="switchTab('market')" id="tab-btn-market"
+                        data-i18n="market">Market</button>
+                    <button class="tab-btn" onclick="switchTab('work')" id="tab-btn-work" data-i18n="work">Work</button>
+                    <button class="tab-btn" onclick="switchTab('inventory')" id="tab-btn-inventory"
+                        data-i18n="inventory">Inventory</button>
+                    <button class="tab-btn" onclick="switchTab('chat')" id="tab-btn-chat" data-i18n="chat">Global
+                        Chat</button>
+                    <button class="tab-btn" onclick="switchTab('vote')" id="tab-btn-vote" data-i18n="voteCenter">Vote
+                        Center</button>
+                    <button class="tab-btn" onclick="switchTab('announcements')" id="tab-btn-announcements"
+                        data-i18n="announcements">Announcements</button>
+
+                    <button class="tab-btn hidden" onclick="switchTab('control')" id="tab-btn-control"
+                        style="color: #ff4444;" data-i18n="control">Control</button>
+
+                    <div style="margin-top: auto;">
+                        <button class="tab-btn" id="btn-settings" data-i18n="settings">Settings</button>
+                        <button class="tab-btn" id="btn-logout" data-i18n="exit" style="color: #ff4444;">Exit</button>
+                    </div>
+                </div>
+
+                <!-- Main Content Area -->
+                <div style="flex: 1; overflow-y: auto; padding: 2rem; position: relative;">
+
+                    <!-- TAB: MARKET -->
+                    <div id="tab-market" class="tab-content">
+                        <h2 data-i18n="globalMarket">Global Market</h2>
+
+                        <!-- Market Depth Visual -->
+                        <div class="market-depth">
+                            <div>
+                                <small style="display:block; color:var(--text-muted); margin-bottom:4px">INDEX</small>
+                                <span id="market-rate"
+                                    style="font-size:1.2rem; font-weight:700; color:var(--primary)">OMG/USD</span>
+                            </div>
+                            <div id="depth-chart" class="depth-chart">
+                                <!-- Bars injected by JS -->
+                            </div>
+                            <div style="text-align:right">
+                                <small style="display:block; color:var(--text-muted); margin-bottom:4px">CHANGE</small>
+                                <span id="market-change"
+                                    style="font-size:1.2rem; font-weight:700; color:var(--accent)">0.00%</span>
+                            </div>
+                        </div>
+
+                        <div id="market-grid" class="grid-container">
+                            <!-- Items go here -->
+                        </div>
+                    </div>
+
+                    <!-- TAB: WORK -->
+                    <div id="tab-work" class="tab-content hidden">
+                        <h2 data-i18n="labTasks">Lab Tasks</h2>
+
+                        <div class="work-station">
+                            <div class="work-visual">⚛️</div>
+                            <h3 data-i18n="performTask">Quantum Alignment</h3>
+                            <div class="energy-cost" data-i18n="energyReq">Energy Required: 20</div>
+                            <button class="btn-pulse" onclick="selectGame('quantum')" data-i18n="startAlign">START
+                                ALIGNMENT</button>
+                        </div>
+
+                        <div class="work-station" style="margin-top:20px; border-color:var(--accent);">
+                            <div class="work-visual">🧠</div>
+                            <h3>Memory Matrix</h3>
+                            <div class="energy-cost">Energy Required: 20</div>
+                            <button class="btn-pulse" onclick="selectGame('memory')"
+                                style="background:var(--accent); color:#000;">START MEMORY</button>
+                        </div>
+                    </div>
+
+                    <!-- TAB: INVENTORY -->
+                    <div id="tab-inventory" class="tab-content hidden">
+                        <div
+                            style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+                            <h2 data-i18n="yourAssets">Your Assets</h2>
+                            <button class="btn-secondary"
+                                onclick="document.getElementById('sell-modal').classList.toggle('hidden')"
+                                data-i18n="listNewAsset">+ List Asset</button>
+                        </div>
+
+                        <!-- Simple Sell Form -->
+                        <div id="sell-modal"
+                            style="background: rgba(0,0,0,0.5); padding: 1rem; border-radius: 10px; border: 1px solid var(--glass-border); margin-bottom: 2rem;">
+                            <h3 data-i18n="listNewAsset">List New Asset</h3>
+                            <form id="form-sell">
+                                <div class="input-group">
+                                    <label data-i18n="itemName">Item Name</label>
+                                    <input type="text" id="sell-name" required>
+                                </div>
+                                <div class="input-group">
+                                    <label data-i18n="designDrawing">Design Image</label>
+                                    <input type="file" id="sell-image" accept="image/*">
+                                </div>
+                                <div id="sell-preview" style="margin: 10px 0; max-width: 100px;"></div>
+
+                                <div style="display: flex; gap: 10px;">
+                                    <div class="input-group" style="flex:1">
+                                        <label data-i18n="priceOmg">Price</label>
+                                        <input type="number" id="sell-price" value="10" required>
+                                    </div>
+                                    <div class="input-group" style="flex:1">
+                                        <label data-i18n="stockAmount">Stock</label>
+                                        <input type="number" id="sell-stock" value="1" required>
+                                    </div>
+                                </div>
+                                <button type="submit" class="btn-primary" data-i18n="listAsset">List Asset</button>
+                            </form>
+                        </div>
+
+                        <div id="inventory-grid" class="grid-container">
+                            <!-- Inventory Items -->
+                        </div>
+                    </div>
+
+                    <!-- TAB: CHAT -->
+                    <div id="tab-chat" class="tab-content hidden">
+                        <h2 data-i18n="globalChat">Global Chat</h2>
+
+                        <div class="tabs" style="background: rgba(255,255,255,0.05);">
+                            <button id="btn-chat-global" class="tab-btn active" onclick="setChatMode('global')">Public
+                                Channel</button>
+                            <button id="btn-chat-private" class="tab-btn" onclick="setChatMode('private')">Encrypted
+                                (Direct)</button>
+                        </div>
+
+                        <div id="chat-private-target-container" class="input-group hidden">
+                            <input type="text" id="chat-target-user" placeholder="Enter Target Username...">
+                        </div>
+
+                        <div id="chat-box" class="chat-container">
+                            <!-- Messages -->
+                        </div>
+
+                        <form id="form-chat" class="chat-input-area">
+                            <input type="text" id="chat-input" placeholder="Transmit message..." autocomplete="off">
+                            <button type="submit" class="btn-primary">SEND</button>
+                        </form>
+                    </div>
+
+                    <!-- TAB: VOTES -->
+                    <div id="tab-vote" class="tab-content hidden">
+                        <div
+                            style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+                            <h2 data-i18n="voteCenter">Vote Center</h2>
+                            <button class="btn-secondary"
+                                onclick="document.getElementById('vote-modal').classList.toggle('hidden')"
+                                data-i18n="giveIdea">New Proposal</button>
+                        </div>
+
+                        <form id="form-create-vote"
+                            style="background: rgba(0,0,0,0.5); padding: 1rem; border-radius: 10px; margin-bottom: 2rem;">
+                            <h3 data-i18n="startVote">Start Vote</h3>
+                            <div class="input-group">
+                                <label data-i18n="voteType">Vote Type</label>
+                                <select id="vote-type">
+                                    <option value="usual" data-i18n="usualVote">Usual Vote</option>
+                                    <option value="kick_out" data-i18n="kickOutVote">Kick User</option>
+                                </select>
+                            </div>
+                            <div class="input-group">
+                                <label data-i18n="details">Details / Content</label>
+                                <input type="text" id="vote-content" placeholder="Enter details..." required>
+                            </div>
+                            <button type="submit" class="btn-primary">Submit Proposal</button>
+                        </form>
+
+                        <div id="vote-list" style="display: flex; flex-direction: column; gap: 1rem;">
+                            <!-- Votes -->
+                        </div>
+                    </div>
+
+                    <!-- TAB: ANNOUNCEMENTS -->
+                    <div id="tab-announcements" class="tab-content hidden">
+                        <h2 data-i18n="announcements">Announcements</h2>
+                        <div id="announcement-list" style="display: flex; flex-direction: column; gap: 10px;"></div>
+                    </div>
+
+                    <!-- TAB: CONTROL (Admin) -->
+                    <div id="tab-control" class="tab-content hidden">
+                        <h2>Admin Control Panel</h2>
+
+                        <div class="admin-section">
+                            <h4>System Logs</h4>
+                            <div id="admin-logs-list"
+                                style="height: 150px; overflow-y: auto; font-family: monospace; font-size: 0.8rem; color: #0f0;">
+                            </div>
+                        </div>
+
+                        <div class="admin-section">
+                            <h4>User List</h4>
+                            <div id="admin-user-list" class="admin-list" style="max-height: 200px; overflow-y: auto;">
+                            </div>
+                        </div>
+
+                        <div class="admin-actions">
+                            <h4>User Management</h4>
+                            <div class="input-group">
+                                <label>Target User</label>
+                                <input type="text" id="admin-target-user">
+                            </div>
+                            <div class="input-group">
+                                <label>Block Duration (Days)</label>
+                                <input type="number" id="admin-block-days" value="1">
+                            </div>
+                            <div style="display:flex; gap: 10px; flex-wrap: wrap;">
+                                <button id="btn-admin-delete" class="btn-danger">Delete User</button>
+                                <button id="btn-admin-block" class="btn-secondary">Block</button>
+                                <button id="btn-admin-unblock" class="btn-secondary">Unblock</button>
+                            </div>
+                            <br>
+                            <h4>Economy</h4>
+                            <div style="display:flex; gap: 10px;">
+                                <input type="number" id="admin-coins-amount" placeholder="Amount" style="width: 100px;">
+                                <button id="btn-admin-add-coins" class="btn-secondary">Add Coins</button>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+        <!-- VIEW: SETTINGS -->
+        <div id="view-settings" class="view hidden">
+            <div style="max-width: 500px; margin: auto;">
+                <h2 data-i18n="settings">Settings</h2>
+                <div style="margin-bottom: 2rem; height: 2px; background: var(--text-muted); width: 50px;"></div>
+
+                <div class="input-group">
+                    <label data-i18n="language">Language</label>
+                    <select id="setting-language" onchange="updateSettings()">
+                        <option value="en">English</option>
+                        <option value="zh">中文 (Chinese)</option>
+                        <option value="es">Español</option>
+                    </select>
+                </div>
+
+                <div class="input-group">
+                    <label data-i18n="bgColor">Background Color</label>
+                    <input type="color" id="setting-bg-color" onchange="updateSettings()">
+                </div>
+
+                <div class="button-group">
+                    <button id="btn-reset-settings" class="btn-secondary" data-i18n="resetSettings">Reset to
+                        Default</button>
+                    <button class="btn-secondary" onclick="window.location.reload()">Reload App</button>
+                    <button id="btn-settings-back" class="btn-text" data-i18n="back">Back to Dashboard</button>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- MINIGAME OVERLAY -->
+    <div id="minigame-overlay" class="hidden">
+        <div class="minigame-box" style="position:relative;">
+            <button id="btn-game-exit"
+                style="position:absolute; top:-10px; right:0px; background:transparent; border:none; color:white; font-size:1.5rem; cursor:pointer;">×</button>
+
+            <!-- QUANTUM ALIGNMENT -->
+            <div id="game-ui-quantum" class="game-ui hidden">
+                <h2 style="color:var(--primary); margin-bottom:1rem;">QUANTUM ALIGNMENT</h2>
+                <p style="color:var(--text-muted); margin-bottom:2rem;">Lock the energy stream when it hits the green
+                    zone.</p>
+
+                <div class="game-track">
+                    <div id="game-target" class="game-target" style="left: 40%; width: 20%;"></div>
+                    <div id="game-marker" class="game-marker" style="left: 0%;"></div>
+                </div>
+
+                <div style="display: flex; gap: 1rem; justify-content: center;">
+                    <button id="btn-game-lock" class="btn-primary" style="width: 120px;">LOCK</button>
+                </div>
+            </div>
+
+            <!-- MEMORY MATRIX -->
+            <div id="game-ui-memory" class="game-ui hidden">
+                <h2 style="color:var(--accent); margin-bottom:1rem;">MEMORY MATRIX</h2>
+                <div id="memory-status" style="margin-bottom:1rem; min-height:1.5rem; color:#fff;">Watch...</div>
+
+                <!-- 3x3 Grid -->
+                <div id="memory-grid"
+                    style="display:grid; grid-template-columns:repeat(3, 1fr); gap:10px; width:220px; margin:auto;">
+                    <!-- JS Injects Tiles -->
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+
+    <!-- Inline Script to handle Tab Switching (since it might not be fully covered in script.js or needs DOM mapping) -->
+    <script>
+        function switchTab(tabName) {
+            // Hide all tabs
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+            document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+
+            // Show target
+            const target = document.getElementById('tab-' + tabName);
+            if (target) target.classList.remove('hidden');
+
+            const btn = document.getElementById('tab-btn-' + tabName);
+            if (btn) btn.classList.add('active');
+
+            // Trigger re-renders if global logic exists
+            if (typeof renderMarket === 'function' && tabName === 'market') renderMarket();
+            if (typeof renderChat === 'function' && tabName === 'chat') renderChat();
+            if (typeof renderVotes === 'function' && tabName === 'vote') renderVotes();
+            if (typeof renderInventory === 'function' && tabName === 'inventory') renderInventory();
+            if (typeof renderAnnouncements === 'function' && tabName === 'announcements') renderAnnouncements();
+        }
+    </script>
+</body>
+
+</html>
